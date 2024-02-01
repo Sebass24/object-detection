@@ -1,5 +1,7 @@
 # How to create a great local Python development environment with Docker
 
+[REFERENCIA CONFIGURACIÓN INICIAL](https://youtu.be/0H2miBK_gAk?si=SUVm4Fgz31q7PjDa)
+
 Work in progress
 
 1. Why Docker?

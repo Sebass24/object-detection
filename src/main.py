@@ -1,5 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Response, HTTPException, templates
 from fastapi.responses import HTMLResponse
+import os
+from subprocess import Popen
+import time
+import torch
+import cv2
+from subprocess import Popen
+
 app = FastAPI()
 
 @app.get('/')
@@ -30,7 +37,7 @@ def video_feed():
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.post("/predict")
-async def predict(file: bytes = File(...)):
+async def predict_img(file: bytes = File(...)):
     if not file:
         raise HTTPException(status_code=400, detail="No se recibió ningún archivo")
 

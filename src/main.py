@@ -88,14 +88,17 @@ def display(filename):
     else:
         return "Invalid file format"
 
-    
-@app.route("/", methods=["GET", "POST"])
+   
+""" @app.route("/", methods=["GET", "POST"])
 def predict_img():
     if request.method == "POST":
+        print("entering to POTS -> predict_img")
         if 'file' in request.files:
             f = request.files['file']
-            basepath = os.path.dirname(__file__)
+            basepath = os.path.dirname(os.environ.get("FLASK_APP", __file__))
+            print("Basepath: ", basepath)
             filepath = os.path.join(".." + basepath,'uploads',f.filename)
+            print("Filepath: ", filepath)
             print("upload folder is ", filepath)
             f.save(filepath)
             
@@ -115,13 +118,75 @@ def predict_img():
 
             
     folder_path = '../code/src/runs/detect'
-    subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
-    latest_subfolder = max(subfolders, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))    
-    image_path = folder_path+'/'+latest_subfolder+'/'+f.filename 
-    return render_template('index.html', image_path=image_path)
-    #return "done"
+    if hasattr(predict_img, 'imgpath'):
+        filename = predict_img.imgpath
+        subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
+        latest_subfolder = max(subfolders, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))    
+        image_path = os.path.join(folder_path, latest_subfolder, filename)
+        return render_template('index.html', image_path=image_path)
+    else:
+    # Manejar el caso en que predict_img.imgpath no esté definido
+    # Esto puede ocurrir si no se ha enviado una solicitud POST previamente
+    # o si ha habido un error en la lógica del código
+        return "No se ha cargado ningún archivo aún."
+    
+    #subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
+    #latest_subfolder = max(subfolders, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))    
+    #image_path = folder_path+'/'+latest_subfolder+'/'+f.filename 
+    #return render_template('index.html', image_path=image_path)
+    #return "done"  """
 
+@app.route("/", methods=["GET", "POST"])
+def predict_img():
+    if request.method == "POST":
+        print("Entering POST -> upload_image")
+        if 'file' in request.files:
+            f = request.files['file']
+            basepath = os.path.dirname(os.environ.get("FLASK_APP", __file__))
+            print("Basepath: ", basepath)
+            filepath = os.path.join(".." + basepath, 'uploads', f.filename)
+            print("Filepath: ", filepath)
+            print("Upload folder is ", filepath)
+            f.save(filepath)
+            
+            predict_img.imgpath = f.filename
+            print("Printing predict_img: ", predict_img)
 
+            file_extension = f.filename.rsplit('.', 1)[1].lower()    
+            if file_extension == 'jpg':
+                process = Popen(["python", basepath + "/detect.py", '--source', filepath, "--project", basepath + "/runs/detect"  ,"--weights", "best.pt"])
+                process.wait()
+                
+            elif file_extension == 'mp4':
+                process = Popen(["python", basepath + "/detect.py", '--source', filepath, "--project", basepath + "/runs/detect" , "--weights", "best.pt"])
+                process.communicate()
+                process.wait()
+    
+    folder_path = '../code/src/runs/detect'
+    if hasattr(predict_img, 'imgpath'):
+        filename = predict_img.imgpath
+        subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
+        latest_subfolder = max(subfolders, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))    
+        image_path = os.path.join(folder_path, latest_subfolder, filename)
+        return render_template('index.html', image_path=image_path)
+    else:
+    # Manejar el caso en que predict_img.imgpath no esté definido
+    # Esto puede ocurrir si no se ha enviado una solicitud POST previamente
+    # o si ha habido un error en la lógica del código
+        return "No se ha cargado ningún archivo aún."
+
+""" @app.route("/detected_image")
+def get_detected_image():
+    folder_path = '../code/src/runs/detect'
+    if hasattr(get_detected_image, 'imgpath'):
+        filename = get_detected_image.imgpath
+        subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
+        latest_subfolder = max(subfolders, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))    
+        image_path = os.path.join(folder_path, latest_subfolder, filename)
+        return render_template('index.html', image_path=image_path)
+    else:
+        return "No se ha cargado ningún archivo aún."
+ """
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Flask app exposing yolov5 models")

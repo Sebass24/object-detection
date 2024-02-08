@@ -1,0 +1,13 @@
+
+.imgLogo {
+    width: 20rem;
+    height: 5rem;
+    margin-top: 0rem;
+    background-image: url(../../../../public/Logo-UM-IBio.jpg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 2;
+}
+
+@media (max-width: 450px) {
+}

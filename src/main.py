@@ -7,6 +7,7 @@ import torch
 import cv2
 from re import DEBUG, sub
 from flask import Flask, render_template, request, redirect, send_file, url_for, Response
+from flask_cors import CORS
 from werkzeug.utils import secure_filename, send_from_directory
 import os
 import subprocess
@@ -17,7 +18,7 @@ import shutil
 import time
 
 app = Flask("__main__")
-
+CORS(app)
 
 @app.route("/")
 def hello_world():

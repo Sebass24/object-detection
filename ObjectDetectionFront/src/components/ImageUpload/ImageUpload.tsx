@@ -51,7 +51,6 @@ const Formulario: React.FC = () => {
         <button type="submit">Subir</button>
         {uploadMessage && <p>{uploadMessage}</p>}
       </form>
-      
     </div>
   );
 };

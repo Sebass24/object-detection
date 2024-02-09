@@ -4,6 +4,7 @@ import ImageUpload from './components/ImageUpload/ImageUpload.tsx'
 import './App.css'
 import { Route, Routes } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { ImageList } from './components/ImageList/ImageList.tsx'
 
 function App() {
 
@@ -12,7 +13,7 @@ function App() {
       <Header/>
       <Routes>
         <Route path="/" element= {<ImageUpload/>} />
-        <Route path='/imageList' element={<></>} />
+        <Route path='/imageList' element={<ImageList/>} />
       </Routes>
       <Footer/>
     </>

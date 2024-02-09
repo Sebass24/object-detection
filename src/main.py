@@ -54,11 +54,34 @@ def get_frame():
                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')   
         time.sleep(0.1)  #control the frame rate to display one frame every 100 milliseconds: 
 
-def get_files_names(directorio):
+def get_files_names(dir):
     nombres_de_archivos = []
-    for root, dirs, files in os.walk(directorio):
+    for root, dirs, files in os.walk(dir):
         nombres_de_archivos.extend([f for f in files if f.endswith(('.jpg', '.jpeg', '.png', '.gif'))])
     return nombres_de_archivos
+
+def delete_directory_content(dir):
+    content = os.listdir(dir)
+    
+    for item in content:
+        ruta = os.path.join(dir, item)
+        
+        if os.path.isfile(ruta):
+            os.remove(ruta)
+        elif os.path.isdir(ruta):
+            shutil.rmtree(ruta)
+    return "Eliminado"
+
+def delete_uploads_directory():
+    basepath = os.path.dirname(os.environ.get("FLASK_APP", __file__))
+    direpath = os.path.join(".." + basepath, 'uploads')
+    archivos = os.listdir(direpath)
+
+    for archivo in archivos:
+        ruta_archivo = os.path.join(direpath, archivo)
+        if os.path.isfile(ruta_archivo) and not archivo.endswith(".txt"):
+            os.remove(ruta_archivo)
+            return "Directorio uploads vaciado"
 
 @app.route("/", methods=["GET", "POST"])
 def predict_img():
@@ -73,7 +96,7 @@ def predict_img():
             predict_img.imgpath = f.filename
             print("Printing predict_img: ", predict_img)
 
-            conf = "0.75"
+            conf = "0.5"
             imgsize = "640"
 
             file_extension = f.filename.rsplit('.', 1)[1].lower()    
@@ -86,6 +109,7 @@ def predict_img():
                 process.wait()
     
     if hasattr(predict_img, 'imgpath'):
+        delete_uploads_directory()
         return "Archivo procesado"
     else:
         return "No se ha cargado ningún archivo aún."
@@ -110,11 +134,20 @@ def display(filename):
     
     return "Archivo no encontrado"
 
-@app.route('/getimagenames')
+@app.route('/getimages')
 def get_images_names():
     basepath = os.path.dirname(os.environ.get("FLASK_APP", __file__))
     dirpath = os.path.join(".." + basepath, 'runs', 'detect')
-    return get_files_names(dirpath)
+    images_names = get_files_names(dirpath)
+    response_json = [{'name': name} for name in images_names]
+    return response_json
+
+@app.route("/delete")
+def delete_images_detected():
+    basepath = os.path.dirname(os.environ.get("FLASK_APP", __file__))
+    dirpath = os.path.join(".." + basepath, 'runs', 'detect')
+    return delete_directory_content(dirpath)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Flask app exposing yolov5 models")

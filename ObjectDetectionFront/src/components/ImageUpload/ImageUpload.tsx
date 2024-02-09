@@ -14,6 +14,7 @@ const Formulario: React.FC = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setUploadMessage("");
     if (file) {
         const formData = new FormData();
         formData.append("request", "");
@@ -48,8 +49,9 @@ const Formulario: React.FC = () => {
         <h2>Cargar Foto o Video</h2>
         <input type="file" onChange={handleFileChange} />
         <button type="submit">Subir</button>
+        {uploadMessage && <p>{uploadMessage}</p>}
       </form>
-      {uploadMessage && <p>{uploadMessage}</p>}
+      
     </div>
   );
 };

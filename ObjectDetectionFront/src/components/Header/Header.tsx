@@ -11,7 +11,7 @@ export const Header = () => {
         <Container>
           <Navbar.Brand href="/">TESIS</Navbar.Brand>
           <Nav className="me-auto">
-            <Nav.Link href="/">Upload</Nav.Link>
+            <Nav.Link href="/">Subir</Nav.Link>
             <Nav.Link href="/imageList">Lista de imagenes</Nav.Link>
           </Nav>
           <Nav className="ml-auto">

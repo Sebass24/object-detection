@@ -16,6 +16,8 @@ import re
 import requests
 import shutil
 import time
+import zipfile
+from io import BytesIO
 
 app = Flask("__main__")
 CORS(app)
@@ -57,7 +59,7 @@ def get_frame():
 def get_files_names(dir):
     nombres_de_archivos = []
     for root, dirs, files in os.walk(dir):
-        nombres_de_archivos.extend([f for f in files if f.endswith(('.jpg', '.jpeg', '.png', '.gif'))])
+        nombres_de_archivos.extend([f for f in files if f.endswith(('.jpg', '.jpeg', '.png', '.gif', '.mp4'))])
     return nombres_de_archivos
 
 def delete_directory_content(dir):
@@ -82,6 +84,30 @@ def delete_uploads_directory():
         if os.path.isfile(ruta_archivo) and not archivo.endswith(".txt"):
             os.remove(ruta_archivo)
             return "Directorio uploads vaciado"
+        
+def download_images_as_zip():
+    folder_path = '../code/src/runs/detect'
+    subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
+
+    # Crear un objeto de BytesIO para almacenar el contenido del archivo ZIP
+    zip_buffer = BytesIO()
+
+    # Crear un archivo ZIP en memoria
+    with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False) as zip_file:
+        for subfolder in subfolders:
+            directory = os.path.join(folder_path, subfolder)
+            print("Buscando en el directorio:", directory)
+            for root, dirs, files in os.walk(directory):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    # Agregar cada archivo al archivo ZIP
+                    zip_file.write(file_path, os.path.relpath(file_path, folder_path))
+
+    # Rebobinar el cursor del búfer para que el contenido del archivo ZIP esté listo para ser leído
+    zip_buffer.seek(0)
+
+    # Devolver el archivo ZIP como un objeto de respuesta con el tipo de contenido adecuado
+    return send_file(zip_buffer, download_name="images.zip", as_attachment=True)
 
 @app.route("/", methods=["GET", "POST"])
 def predict_img():
@@ -133,6 +159,25 @@ def display(filename):
             return send_from_directory(directory, filename, request.environ)
     
     return "Archivo no encontrado"
+
+@app.route('/download/<path:filename>')
+def download_image(filename):
+    folder_path = '../code/src/runs/detect'
+    subfolders = [f for f in os.listdir(folder_path) if os.path.isdir(os.path.join(folder_path, f))]    
+    for subfolder in subfolders:
+        directory = os.path.join(folder_path, subfolder)
+        print("Buscando en el directorio:", directory)
+        file_path = os.path.join(directory, filename)
+        if os.path.exists(file_path):
+            response = send_from_directory(directory, filename, request.environ)
+            response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+    
+    return "Archivo no encontrado"
+
+@app.route('/downloadzip')
+def download_zip():
+    return download_images_as_zip()
 
 @app.route('/getimages')
 def get_images_names():

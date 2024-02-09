@@ -20,17 +20,16 @@ const Formulario: React.FC = () => {
         formData.append("request", "");
         formData.append("file", file);
         try {
+            setUploadMessage("Procesando..");
             const response = await fetch("http://127.0.0.1:8080/", {
                 method: "POST",
                 body: formData
             });
   
             if (response.ok) {
-                setUploadMessage("Archivo subido correctamente");
-                console.log("Archivo subido correctamente");
+                setUploadMessage("Archivo procesado correctamente");
               } else {
                 setUploadMessage("Error al subir el archivo: " + response.statusText);
-                console.error("Error al subir el archivo:", response.statusText);
               }
         } catch (error) {
             setUploadMessage("Error de red: " + error);

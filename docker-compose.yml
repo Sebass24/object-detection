@@ -8,3 +8,15 @@ services:
       - 8080:8080
     volumes:
       - .:/code
+  #frontend:
+  #  build: ./ObjectDetectionFront  # Ruta al directorio del proyecto de React
+  #  container_name: react-app
+  #  command: npm run dev  
+   # ports:
+  #    - 5173:5173
+   # volumes:
+    #  - ./ObjectDetectionFront:/app
+
+
+
+  
